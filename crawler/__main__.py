@@ -20,17 +20,25 @@ def parse(html_doc):
 
 def store(stocks, db_file):
     conn = sqlite3.connect(db_file)
-    conn.execute('CREATE TABLE IF NOT EXISTS stocks (date INT, symbol VARCHAR(10), value DECIMAL(10,2))')
+    conn.cursor().execute('CREATE TABLE IF NOT EXISTS symbols(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol VARCHAR(10))')
+    existing_symbols = set(conn.cursor().execute('SELECT symbol from symbols'))
+    new_symbols = ["('{}')".format(s[0]) for s in stocks if s[0] not in existing_symbols]
+    conn.execute('INSERT INTO symbols(symbol) VALUES {}'.format(','.join(new_symbols)))
+
+    all_symbols = {}
+    for row in conn.cursor().execute('SELECT symbol, id from symbols'):
+        all_symbols[row[0]] = row[1]
+
     now = datetime.utcnow().timestamp()
-    values = ["('{date}', '{symbol}', {value})".format(date=now, symbol=s[0], value=s[1]) for s in stocks]
-    sql = 'INSERT INTO stocks(date, symbol, value) VALUES {}'.format(','.join(values))
-    conn.execute(sql)
+    conn.execute('CREATE TABLE IF NOT EXISTS stocks (executed_on INT, symbol_id INTEGER, value DECIMAL(10,2))')
+    values = ["('{date}', '{symbol}', {value})".format(date=now, symbol=all_symbols[s[0]], value=s[1]) for s in stocks]
+    conn.execute('INSERT INTO stocks(executed_on, symbol_id, value) VALUES {}'.format(','.join(values)))
     conn.commit()
     conn.close()
 
 
 if __name__ == "__main__":
     url = 'http://www.nepalstock.com'
-    db_filepath = 'stocks.db'
+    db_filepath = '../data/stocks.db'
     html = download_content(url)
     store(parse(html), db_filepath)

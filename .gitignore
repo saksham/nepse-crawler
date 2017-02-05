@@ -91,3 +91,6 @@ ENV/
 # IntelliJ
 .idea/
 *.iml
+
+# Project files
+data/stocks.db
