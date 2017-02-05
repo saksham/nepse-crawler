@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from distutils.core import setup
 from codecs import open
 from os import path
 
@@ -21,9 +21,8 @@ setup(name='nepse-crawler',
       author='Saksham',
       author_email='saksham@no-reply.github.com',
       license='MIT',
-      packages='crawler',
       entry_points={
             'console_scripts': [
-                  'crawler.__main__'
+                  'crawl-nepse=crawler.__main__:main'
             ]
       })

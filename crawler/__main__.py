@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import urllib.request
 import sqlite3
 from datetime import datetime
+import click
 
 
 def download_content(url_path):
@@ -37,8 +38,12 @@ def store(stocks, db_file):
     conn.close()
 
 
-if __name__ == "__main__":
+@click.command()
+@click.argument('db_filepath')
+def main(db_filepath):
     url = 'http://www.nepalstock.com'
-    db_filepath = '../data/stocks.db'
     html = download_content(url)
     store(parse(html), db_filepath)
+
+if __name__ == "__main__":
+    main()
